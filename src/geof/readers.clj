@@ -1,6 +1,9 @@
 (ns geof.readers
   (:require [topojson.reader :as topo])
 
+  (:require [msgpack.core :as msg])
+  (:require msgpack.clojure-extensions)
+
   (:import [java.util.zip GZIPInputStream])
 
   (:require [clojure.java.io :as io])
@@ -8,12 +11,23 @@
 
 (defn read-geojson
   [reader] 
-  [(json/read reader :key-fn keyword)])
+  [(json/read (io/reader reader) :key-fn keyword)])
 
 (defn read-topojson
   [reader] 
-  (-> reader
+  (-> (io/reader reader)
       (json/read :key-fn keyword)
+      (topo/topo2geo)
+      (get :features)))
+
+(defn read-geo-msg-pack
+  [reader]
+  [(msg/unpack reader)])
+
+(defn read-topo-msg-pack
+  [reader]
+  (-> reader
+      (msg/unpack :key-fn keyword)
       (topo/topo2geo)
       (get :features)))
 
@@ -29,14 +43,16 @@
 (defn reader-for-0
   [input-file]
   (if (re-find #"gz$" input-file)
-    (io/reader (GZIPInputStream. (reader-for-1 input-file)))
-    (io/reader (reader-for-1 input-file))))
+    (GZIPInputStream. (reader-for-1 input-file))
+    (reader-for-1 input-file)))
 
 (defn reader-fn
   [input-file]
   (cond 
     (re-find #"topo.?json(.gz)?$" input-file) read-topojson
+    (re-find #"topo.?m(sg)?pack(.gz)?$" input-file) read-topo-msg-pack
     (re-find #"json(.gz)?$" input-file) read-geojson
+    (re-find #"m(sg)?pack(.gz)?$" input-file) read-geo-msg-pack
     (re-find #"shp$" input-file) read-shp
     (re-find #"zip$" input-file) read-shp
     :else nil))

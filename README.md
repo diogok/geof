@@ -25,9 +25,13 @@ Where output.format is the name of the file after conversion. Supporting the fol
 - output.shp to create individual shp files
 - output.zip to create shp files in a zip archive
 - output.json to create a GeoJSON file
+- output.mpack to create a GeoJSON in MsgPack binary file
 - output.json.gz to create a compressed GeoJSON file
+- output.mpack.gz to create a compressed GeoJSON in MsgPack binary file
 - output.topo.json to create a TopoJSON file
-- output.topo.json.gz to create a compressed TopoJSON file (great for the web with minimal size)
+- output.topo.mpack to create a TopoJSON in MsgPack binary file
+- output.topo.json.gz to create a compressed TopoJSON file
+- output.topo.mpack.gz to create a compressed TopoJSON in MsgPack binary file
 
 If filename is "-" (ex.: javar -jar geof.jar -.json.gz -.shp) it will use standart in for input or standart out for output.
 
