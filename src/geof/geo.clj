@@ -6,7 +6,7 @@
 
 (defn coords2coords
   [pairs]
-    (map 
+    (mapv
       (fn [pair] 
         (geom/c (second pair) (first pair)))
       pairs))
@@ -17,20 +17,27 @@
 
 (defn make-multi-point
   [coords]
-  (geom/multi-point (map make-point coords)))
+  (geom/multi-point (mapv make-point coords)))
 
 (defn make-line-string
   [coords]
   (geom/line-string 
-    (map coords2coords coords)))
+    (mapv coords2coords coords)))
+
+(defn linear-ring
+  [coords]
+   (geom/linear-ring
+     (if (>= (count coords) 4)
+         coords
+         ) []))
 
 (defn make-poly
   [coords] 
   (let [cpoly (coords2coords (first coords))
-        choles (map coords2coords (rest coords))]
+        choles (mapv coords2coords (rest coords))]
     (geom/polygon
-     (geom/linear-ring cpoly)
-     (map geom/linear-ring choles))))
+     (linear-ring (conj cpoly (first cpoly)))
+     (map linear-ring choles))))
 
 (defn make-mpoly
   [coords] 
@@ -49,22 +56,40 @@
     nil
     )))
 
+(defn make-type
+  [ & objs] 
+    (let [geom  (make-geom (first objs))
+          b0    (SimpleFeatureTypeBuilder.)
+          props (reduce merge {} (map :properties objs))]
+      (.setName b0 (str (:type (:geometry (first objs))) (hash (map key props))))
+      (doseq [kv props]
+        (if (nil? (val kv))
+          (.add b0 (name (key kv)) (class ""))
+          (.add b0 (name (key kv)) (class (val kv)))))
+      (.add b0 "the_geom" (class geom))
+      (.buildFeatureType b0)))
+
 (defn make-feat
-  [obj]
-  (let [geom (make-geom obj)
-        b0   (SimpleFeatureTypeBuilder.)]
-    (.setName b0 (str (:type (:geometry obj)) (hash (map key (:properties obj)))))
-    (doseq [kv (:properties obj)]
-      (.add b0 (name (key kv)) (class (val kv))))
-    (.add b0 "the_geom" (class geom))
-    (let [feat-type (.buildFeatureType b0)
-          b1 (SimpleFeatureBuilder. feat-type)]
+  ([obj] 
+    (let [geom  (make-geom obj)
+          b0    (SimpleFeatureTypeBuilder.)
+          props (:properties obj)]
+      (.setName b0 (str (:type (:geometry obj)) (hash (map key props))))
+      (doseq [kv props]
+        (if-not (nil? (val kv))
+          (.add b0 (name (key kv)) (class (val kv)))))
+      (.add b0 "the_geom" (class geom))
+      (make-feat (.buildFeatureType b0) obj)))
+  ([feat-type obj]
+    (let [b0 (SimpleFeatureBuilder. feat-type)
+          geom (make-geom obj)]
       (doseq [kv (:properties obj)]
-        (.add b1 (val kv)))
-      (.add b1 geom)
-      (.buildFeature b1 (:id obj)))))
+        (if-not (nil? (val kv))
+          (.set b0 (name (key kv)) (val kv))))
+      (.add b0 geom)
+      (.buildFeature b0 (:id obj)))))
 
 (defn make-feat-collection
   [coll]
-  (DataUtilities/collection (map make-feat (:features coll))))
+  (DataUtilities/collection (map (partial make-feat (apply make-type (:features coll))) (:features coll))))
 
