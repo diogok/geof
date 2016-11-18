@@ -22,8 +22,7 @@ Download the latest jar from the [realases page](https://github.com/diogok/geof/
 
 Where output.format is the name of the file after conversion. Supporting the following extensions:
 
-- output.shp to create individual shp files
-- output.zip to create shp files in a zip archive
+- output.shp to create individual shp files in folder output
 - output.json to create a GeoJSON file
 - output.mpack to create a GeoJSON in MsgPack binary file
 - output.json.gz to create a compressed GeoJSON file
@@ -35,7 +34,7 @@ Where output.format is the name of the file after conversion. Supporting the fol
 
 If filename is "-" (ex.: javar -jar geof.jar -.json.gz -.shp) it will use standart in for input or standart out for output.
 
-When converting to shapefile, beware of the limitation of only a single geometry type per shapefile.
+When converting to shapefile, beware of the limitation of only a single geometry type per shapefile, column name and content limit and such.
 
 ### As a library in Clojure
 

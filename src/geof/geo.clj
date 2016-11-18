@@ -8,7 +8,7 @@
   [pairs]
     (mapv
       (fn [pair] 
-        (geom/c (second pair) (first pair)))
+        (geom/c (first pair) (second pair)))
       pairs))
 
 (defn make-point
@@ -29,7 +29,7 @@
    (geom/linear-ring
      (if (>= (count coords) 4)
          coords
-         ) []))
+         [])))
 
 (defn make-poly
   [coords] 
@@ -86,10 +86,15 @@
       (doseq [kv (:properties obj)]
         (if-not (nil? (val kv))
           (.set b0 (name (key kv)) (val kv))))
-      (.add b0 geom)
-      (.buildFeature b0 (:id obj)))))
+      (.set b0 "the_geom" geom)
+      (.buildFeature b0 (str (rand-int 999999))))))
 
 (defn make-feat-collection
   [coll]
-  (DataUtilities/collection (map (partial make-feat (apply make-type (:features coll))) (:features coll))))
+  (DataUtilities/collection 
+    (map 
+      (partial
+        make-feat
+         (apply make-type (:features coll))) 
+      (:features coll))))
 
