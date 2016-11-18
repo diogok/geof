@@ -12,18 +12,19 @@
 (defn as-one
   [& datasets]
   {:type "FeatureCollection"
-   :features (flatten (map :features datasets))})
+   :features (doall (flatten (map :features datasets)) )})
 
 (defn write-to-geojson
   [writer & datasets] 
-  (json/write (apply as-one datasets) (io/writer writer)))
+  (spit (io/writer writer)
+        (json/write-str (apply as-one datasets))))
 
 (defn write-to-topojson
   [writer & datasets] 
-    (json/write 
+  (spit (io/writer writer)
+    (json/write-str
       (binding [topo/*type* float]
-        (apply topo/geo2topo datasets))
-      (io/writer writer)))
+        (apply topo/geo2topo datasets)))))
 
 (defn write-to-topo-msg-pack
   [writer & datasets]
