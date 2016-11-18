@@ -29,7 +29,8 @@
   (-> reader
       (msg/unpack :key-fn keyword)
       (topo/topo2geo)
-      (get :features)))
+      (get :features)
+      (doall)))
 
 (defn read-shp
   [reader] nil)
