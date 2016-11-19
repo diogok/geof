@@ -4,7 +4,9 @@
 
   (:require [clojure.java.io :as io])
   (:require [clojure.data.json :as json])
-  (:require [taoensso.timbre :as log]))
+  (:require [taoensso.timbre :as log])
+  
+  (:gen-class))
 
 (defn -main
   [ & args ]

@@ -6,10 +6,6 @@ A library and command line interface to convert between geospatial vector data f
 - TopoJSON
 - Shapefile
 
-## Why?
-
-Because a 100MB shp can turn into a 2MB Topology msg-pack compressed, but you will need the shapefile back for some programs.
-
 ## Usage
 
 ### Standalone CLI

@@ -6,7 +6,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
 
                  [org.clojars.diogok/cljts "0.5.1"]
-                 [topojson "0.0.1-SNAPSHOT"]
+                 [topojson "0.0.1"]
 
                  [org.clojure/data.json "0.2.6"]
                  [clojure-msgpack "1.2.0"]
