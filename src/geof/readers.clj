@@ -5,6 +5,10 @@
   (:require msgpack.clojure-extensions)
 
   (:import [java.util.zip GZIPInputStream])
+  (:import [java.util HashMap])
+  (:import [org.geotools.data DataStoreFinder])
+
+  (:require [geof.geo :as geo])
 
   (:require [clojure.java.io :as io])
   (:require [clojure.data.json :as json]))
@@ -33,13 +37,23 @@
       (doall)))
 
 (defn read-shp
-  [reader] nil)
+  [reader] 
+    (let [cn (doto (HashMap.) 
+               (.put "url" (.toURL reader)))
+          ds (DataStoreFinder/getDataStore cn)
+          tp (first (.getTypeNames ds))
+          sc (.getFeatureSource ds tp)
+          fc (.getFeatures sc)
+          rr (geo/from-feat-collection fc)]
+      (.dispose ds)
+      [rr]))
 
-(defn reader-for-1
+(defn reader-for-1 
   [input-file]
-  (if (re-find #"^-" input-file)
-    (io/input-stream System/in)
-    (io/input-stream (io/file input-file))))
+  (cond 
+    (re-find #"^-" input-file) (io/input-stream System/in)
+    (re-find #"shp$" input-file) (io/file input-file)
+    :else (io/input-stream (io/file input-file))))
 
 (defn reader-for-0
   [input-file]
@@ -54,16 +68,16 @@
     (re-find #"topo.?m(sg)?pack(.gz)?$" input-file) read-topo-msg-pack
     (re-find #"json(.gz)?$" input-file) read-geojson
     (re-find #"m(sg)?pack(.gz)?$" input-file) read-geo-msg-pack
-    (re-find #"shp$" input-file) read-shp
-    (re-find #"zip$" input-file) read-shp
-    :else nil))
+    :else read-shp))
 
 (defn reader-for
   [input-file] 
   (if-let [fun (reader-fn input-file)]
     (fn []
-      (with-open [reader (reader-for-0 input-file)]
-        (fun reader)))))
+      (if (= read-shp fun)
+        (fun (reader-for-0 input-file))
+        (with-open [reader (reader-for-0 input-file)]
+          (fun reader))))))
 
 (defn read-from
   [input-file]
