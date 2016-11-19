@@ -1,8 +1,10 @@
 (ns geof.geo
   (:import [org.geotools.feature.simple SimpleFeatureBuilder SimpleFeatureTypeBuilder]
            [org.geotools.data DataUtilities])
+  (:require [clojure.data.json :as json])
   (:require [cljts.relation :as rel]
-            [cljts.geom :as geom]))
+            [cljts.geom :as geom]
+            [cljts.io :as gio]))
 
 (defn coords2coords
   [pairs]
@@ -97,4 +99,33 @@
         make-feat
          (apply make-type (:features coll))) 
       (:features coll))))
+
+(defn from-geom
+  [feat]
+  (json/read-str 
+    (gio/write-geojson (.getDefaultGeometry feat))
+    :key-fn keyword))
+
+(defn from-feat
+  [feat] 
+  {:id (.getID feat)
+   :properties 
+     (reduce merge {}
+       (for [prop (.getProperties feat)]
+         (when (and (not (nil? (.getValue prop)))
+                    (not (= (.getValue prop) (.getDefaultGeometry feat))))
+           {(keyword (.getLocalPart (.getName prop))) 
+            (.getValue prop)})))
+   :geometry (from-geom feat)})
+
+(defn from-feat-collection
+  [feat-col]
+  {:type "FeatureCollection"
+   :features 
+     (let [iter (.features feat-col)
+           feats (transient [])]
+       (while (.hasNext iter)
+         (conj! feats (from-feat (.next iter))))
+       (.close iter)
+       (persistent! feats))})
 
