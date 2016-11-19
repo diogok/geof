@@ -84,3 +84,7 @@
           (apply fun writer datasets)
           (.flush writer))))))
 
+(defn write-to
+  [output-file datasets]
+  (apply (writer-for output-file) datasets))
+
