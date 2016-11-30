@@ -10,6 +10,7 @@
 
                  [org.clojure/data.json "0.2.6"]
                  [clojure-msgpack "1.2.0"]
+                 [org.tukaani/xz "1.0"]
 
                  [com.taoensso/timbre "4.1.4"]]
   :repositories [["osgeo" "http://download.osgeo.org/webdav/geotools/"]
