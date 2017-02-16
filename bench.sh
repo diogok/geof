@@ -5,8 +5,9 @@
 FORMATS=("geojson" "mpack" "topojson" "topo.mpack")
 COMPRESSES=(" " ".gz" ".xz")
 
-INPUT="test/data/in.geojson"
-DEST="test/data"
+FOLDER="/test/data"
+INPUT="$FOLDER/in.geojson"
+DEST="$FOLDER"
 
 JAVA_OPTS="-server -XX:+UseConcMarkSweepGC -XX:+UseCompressedOops -XX:+DoEscapeAnalysis -Xmx3G -Xms3G"
 
