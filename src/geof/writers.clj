@@ -20,12 +20,14 @@
 
 (defn write-to-geojson
   [writer & datasets] 
-  (spit (io/writer writer)
-        (json/write-str (apply as-one datasets))))
+  (.write
+    (io/writer writer)
+    (json/write-str (apply as-one datasets))))
 
 (defn write-to-topojson
   [writer & datasets] 
-  (spit (io/writer writer)
+  (.write
+    (io/writer writer)
     (json/write-str
       (binding [topo/*type* float]
         (apply topo/geo2topo datasets)))))
@@ -65,17 +67,19 @@
   (cond
     (re-find #"gz$" output-file) (GZIPOutputStream. (writer-for-1 output-file))
     (re-find #"xz$" output-file) (XZOutputStream. (writer-for-1 output-file) (LZMA2Options. LZMA2Options/PRESET_MAX))
-    :else (writer-for-1 output-file)
-    ))
+    :else (writer-for-1 output-file)))
 
 (defn writer-fn
   [output-file]
   (cond 
     (re-find #"topo.?json(.gz)?$" output-file) write-to-topojson
+    (re-find #"topo.?json(.xz)?$" output-file) write-to-topojson
     (re-find #"topo.?m(sg)?pack(.gz)?$" output-file) write-to-topo-msg-pack
     (re-find #"topo.?m(sg)?pack(.xz)?$" output-file) write-to-topo-msg-pack
     (re-find #"json(.gz)?$" output-file) write-to-geojson
+    (re-find #"json(.xz)?$" output-file) write-to-geojson
     (re-find #"m(sg)?pack(.gz)?$" output-file) write-to-geo-msg-pack
+    (re-find #"m(sg)?pack(.xz)?$" output-file) write-to-geo-msg-pack
     :else write-to-shp))
 
 (defn writer-for
@@ -85,8 +89,9 @@
       (if (= write-to-shp fun)
         (apply fun (writer-for-0 output-file) datasets)
         (with-open [writer (writer-for-0 output-file)]
-          (apply fun writer datasets)
-          (.flush writer))))))
+          (do
+            (apply fun writer datasets)
+            (.flush writer)))))))
 
 (defn write-to
   [output-file datasets]
