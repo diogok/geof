@@ -2,27 +2,43 @@
 
 #lein uberjar
 
-time java -server -XX:+UseConcMarkSweepGC -XX:+UseCompressedOops -XX:+DoEscapeAnalysis -jar -Xmx3G -Xms3G \
-  target/geof-0.0.1-standalone.jar \
-  admin_level_8.geojson \
-  ~/Downloads/brazil/admin_level_8.geojson
+FORMATS=("geojson" "mpack" "topojson" "topo.mpack")
+COMPRESSES=(" " ".gz" ".xz")
 
-time java -server -XX:+UseConcMarkSweepGC -XX:+UseCompressedOops -XX:+DoEscapeAnalysis -jar -Xmx3G -Xms3G \
-  target/geof-0.0.1-standalone.jar \
-  admin_level_8.geojson.gz \
-  ~/Downloads/brazil/admin_level_8.geojson
+INPUT="test/data/in.geojson"
+DEST="test/data"
 
-time java -server -XX:+UseConcMarkSweepGC -XX:+UseCompressedOops -XX:+DoEscapeAnalysis -jar -Xmx3G -Xms3G \
-  target/geof-0.0.1-standalone.jar \
-  admin_level_8.topo.mpack \
-  ~/Downloads/brazil/admin_level_8.geojson
+JAVA_OPTS="-server -XX:+UseConcMarkSweepGC -XX:+UseCompressedOops -XX:+DoEscapeAnalysis -Xmx3G -Xms3G"
 
-time java -server -XX:+UseConcMarkSweepGC -XX:+UseCompressedOops -XX:+DoEscapeAnalysis -jar -Xmx3G -Xms3G \
-  target/geof-0.0.1-standalone.jar \
-  admin_level_8.topo.mpack.gz \
-  ~/Downloads/brazil/admin_level_8.geojson
+TARGET="$DEST/out.shp"
+time java $JAVA_OPTS -jar  \
+  target/geof-0.0.1-standalone.jar "$TARGET" "$INPUT"
+du -sh $TARGET
 
-time java -server -XX:+UseConcMarkSweepGC -XX:+UseCompressedOops -XX:+DoEscapeAnalysis -jar -Xmx3G -Xms3G \
-  target/geof-0.0.1-standalone.jar \
-  admin_level_8.topo.mpack.xz \
-  ~/Downloads/brazil/admin_level_8.geojson
+for FORMAT in ${FORMATS[@]}
+do
+  TARGET="$DEST/out.$FORMAT"
+  echo "Target $TARGET"
+
+  time java $JAVA_OPTS -jar \
+    target/geof-0.0.1-standalone.jar \
+    $TARGET \
+    $INPUT
+
+  ls -lah $TARGET
+
+  for COMPRESS in ${COMPRESSES[@]}
+  do
+    TARGET="$DEST/out.$FORMAT$COMPRESS"
+    echo "Target $TARGET"
+
+    time java $JAVA_OPTS -jar \
+      target/geof-0.0.1-standalone.jar \
+      $TARGET \
+      $INPUT
+
+    ls -lah $TARGET
+  done
+done
+
+ls -lah $DST

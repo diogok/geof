@@ -1,6 +1,8 @@
 /target
 /classes
 /checkouts
+/test/data2
+/test/data/out*
 pom.xml
 pom.xml.asc
 *.jar
@@ -10,6 +12,4 @@ pom.xml.asc
 .hgignore
 .hg/
 out.*
-in.*
 *.swp
-
