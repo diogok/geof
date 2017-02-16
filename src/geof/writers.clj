@@ -20,13 +20,13 @@
 
 (defn write-to-geojson
   [writer & datasets] 
-  (.write
+  (spit
     (io/writer writer)
     (json/write-str (apply as-one datasets))))
 
 (defn write-to-topojson
   [writer & datasets] 
-  (.write
+  (spit
     (io/writer writer)
     (json/write-str
       (binding [topo/*type* float]
@@ -88,10 +88,12 @@
     (fn [& datasets]
       (if (= write-to-shp fun)
         (apply fun (writer-for-0 output-file) datasets)
-        (with-open [writer (writer-for-0 output-file)]
-          (do
-            (apply fun writer datasets)
-            (.flush writer)))))))
+        (if (or (= write-to-geojson fun) (= write-to-topojson fun))
+          (apply fun (writer-for-0 output-file) datasets)
+          (with-open [writer (writer-for-0 output-file)]
+            (do
+              (apply fun writer datasets)
+              (.flush writer))))))))
 
 (defn write-to
   [output-file datasets]
