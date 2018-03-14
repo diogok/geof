@@ -5,7 +5,7 @@
   (:require msgpack.clojure-extensions)
 
   (:import [java.util.zip GZIPOutputStream])
-  (:import [org.tukaani.xz XZOutputStream LZMA2Options])
+  (:import [org.tukaani.xz XZOutputStream LZMAOutputStream LZMA2Options])
   (:import [org.geotools.data.shapefile ShapefileDumper])
 
   (:require [geof.geo :as geo])
@@ -67,6 +67,7 @@
   (cond
     (re-find #"gz$" output-file) (GZIPOutputStream. (writer-for-1 output-file))
     (re-find #"xz$" output-file) (XZOutputStream. (writer-for-1 output-file) (LZMA2Options. LZMA2Options/PRESET_MAX))
+    (re-find #"lz$" output-file) (LZMAOutputStream. (writer-for-1 output-file) (LZMA2Options. LZMA2Options/PRESET_MAX) true)
     :else (writer-for-1 output-file)))
 
 (defn writer-fn
@@ -74,12 +75,16 @@
   (cond 
     (re-find #"topo.?json(.gz)?$" output-file) write-to-topojson
     (re-find #"topo.?json(.xz)?$" output-file) write-to-topojson
+    (re-find #"topo.?json(.lz)?$" output-file) write-to-topojson
     (re-find #"topo.?m(sg)?pack(.gz)?$" output-file) write-to-topo-msg-pack
     (re-find #"topo.?m(sg)?pack(.xz)?$" output-file) write-to-topo-msg-pack
+    (re-find #"topo.?m(sg)?pack(.lz)?$" output-file) write-to-topo-msg-pack
     (re-find #"json(.gz)?$" output-file) write-to-geojson
     (re-find #"json(.xz)?$" output-file) write-to-geojson
+    (re-find #"json(.lz)?$" output-file) write-to-geojson
     (re-find #"m(sg)?pack(.gz)?$" output-file) write-to-geo-msg-pack
     (re-find #"m(sg)?pack(.xz)?$" output-file) write-to-geo-msg-pack
+    (re-find #"m(sg)?pack(.lz)?$" output-file) write-to-geo-msg-pack
     :else write-to-shp))
 
 (defn writer-for
@@ -93,7 +98,9 @@
           (with-open [writer (writer-for-0 output-file)]
             (do
               (apply fun writer datasets)
-              (.flush writer))))))))
+              (if (not (re-find #"lz$" output-file))
+                (.flush writer))
+              )))))))
 
 (defn write-to
   [output-file datasets]
