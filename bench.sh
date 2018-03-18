@@ -9,7 +9,7 @@ FOLDER="./test/data"
 INPUT="$FOLDER/in.geojson"
 DEST="$FOLDER"
 
-JAVA_OPTS="-server -XX:+UseConcMarkSweepGC -XX:+UseCompressedOops -XX:+DoEscapeAnalysis -Xmx3G -Xms3G"
+JAVA_OPTS="-server -XX:+UseCompressedOops -XX:+DoEscapeAnalysis -Xmx3G -Xms3G"
 
 TARGET="$DEST/out.shp"
 

@@ -24,32 +24,13 @@ This is reading from a source geojson of 9MB.
 | GeoJSON | xz | 1.4MB | 21s |
 | GeoMsgPack | - | 5.2MB | 9s |
 | GeoMsgPack | gz | 3.5MB | 11s |
-| GeoMsgPack | xz | 1.7MB |  20s |
-| TopoJSON | - | 7.2MB | 16s |
-| TopoJSON | gz | 1.8MB | 17s |
-| TopoJSON | xz | 1.1MB | 25s |
-| TopoMsgPack | - | 4.2MB | 15s |
-| TopoMsgPack | gz | 1.5MB | 17s |
-| TopoMsgPack | xz | 754KB | 27s |
-
-And using as a source [mapzend borders](https://mapzen.com/data/borders/) of Brazil cities, a 91MB geojson:
-
-| Format | Compress | Size | Time |
-|------- |---------|------|------|
-| Shapefile | - | 206MB | 30s |
-| Shapefile | zip | 33MB  | - |
-| GeoJSON | - | 91MB | 33s  |
-| GeoJSON | gz | 24MB | 37s |
-| GeoJSON | xz | 13MB | 2m27s |
-| GeoMsgPack | - | 54MB | 26s |
-| GeoMsgPack | gz | 34MB | 36s |
-| GeoMsgPack | xz | 12MB | 1m35s |
-| TopoJSON | - | 72MB | 1m22s |
-| TopoJSON | gz | 18MB | 1m26s |
-| TopoJSON | xz | 10MB | 2m41s |
-| TopoMsgPack | - | 43MB | 1m19s |
-| TopoMsgPack | gz | 16MB | 1m44s |
-| TopoMsgPack | xz | 6.6MB | 2m14s |
+| GeoMsgPack | xz | 1.7MB |  15s |
+| TopoJSON | - | 524KB | 22s |
+| TopoJSON | gz | 84KB | 20s |
+| TopoJSON | xz | 64KB | 22s |
+| TopoMsgPack | - | 256KB | 21s |
+| TopoMsgPack | gz | 76KB | 20s |
+| TopoMsgPack | xz | 60KB | 22s |
 
 So choose your own trade-ofs.
 
@@ -79,7 +60,7 @@ Where output.format is the name of the file after conversion. Supporting the fol
 - output.topo.mpack.gz to create a compressed TopoJSON in MsgPack binary file
 - output.topo.mpack.xz to create a more compressed TopoJSON in MsgPack binary file
 
-If filename is "-" (ex.: javar -jar geof.jar -.json.gz -.shp) it will use standart in for input or standart out for output.
+If filename is "-" (ex.: javar -jar geof.jar -.json.gz -.shp) it will use stdin for input or stdout for output.
 
 When converting to shapefile, beware of the limitation of only a single geometry type per shapefile, column name size, column content limit and such.
 
